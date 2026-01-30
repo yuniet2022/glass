@@ -1,0 +1,7 @@
+{
+  "name": "Sarasota Glass Elite",
+  "description": "Premium glass and mirror solutions with AI-powered customer assistance and administrative management.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
