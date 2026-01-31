@@ -10,13 +10,16 @@ import Gallery from './components/Gallery';
 import AdminDashboard from './components/AdminDashboard';
 import ClientPortal from './components/ClientPortal';
 import ChatBot from './components/ChatBot';
+import AboutUs from './components/AboutUs';
+import QuoteForm from './components/QuoteForm';
+import CallButton from './components/CallButton';
+import ProductGuide from './components/ProductGuide';
 
 const App: React.FC = () => {
   const [currentRole, setCurrentRole] = useState<UserRole>(UserRole.GUEST);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
-  const [view, setView] = useState<'home' | 'gallery' | 'portal' | 'admin'>('home');
+  const [view, setView] = useState<'home' | 'gallery' | 'portal' | 'admin' | 'about' | 'quote' | 'products'>('home');
 
-  // Simple session persistence for demo
   useEffect(() => {
     const savedRole = localStorage.getItem('app_role') as UserRole;
     if (savedRole) {
@@ -44,19 +47,25 @@ const App: React.FC = () => {
       case 'home':
         return (
           <>
-            <Hero onExplore={() => setView('gallery')} />
+            <Hero onExplore={() => setView('gallery')} onQuote={() => setView('quote')} />
             <Services />
             <Gallery limit={3} onSeeMore={() => setView('gallery')} />
           </>
         );
       case 'gallery':
         return <Gallery />;
+      case 'products':
+        return <ProductGuide onQuote={() => setView('quote')} />;
+      case 'about':
+        return <AboutUs />;
+      case 'quote':
+        return <QuoteForm onSuccess={() => setView('home')} />;
       case 'admin':
         return currentRole === UserRole.ADMIN ? <AdminDashboard /> : <div className="p-20 text-center">Unauthorized</div>;
       case 'portal':
         return currentUser ? <ClientPortal user={currentUser} /> : <div className="p-20 text-center">Please login</div>;
       default:
-        return <Hero onExplore={() => setView('gallery')} />;
+        return <Hero onExplore={() => setView('gallery')} onQuote={() => setView('quote')} />;
     }
   };
 
@@ -75,7 +84,10 @@ const App: React.FC = () => {
 
       <Footer setView={setView} />
       
-      <ChatBot />
+      <div className="relative">
+        <CallButton />
+        <ChatBot />
+      </div>
     </div>
   );
 };

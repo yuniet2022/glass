@@ -1,5 +1,5 @@
 
-import { Service, GalleryItem, UserProfile, UserRole } from '../types';
+import { Service, GalleryItem, UserProfile, UserRole, Appointment, BlockedSlot } from '../types';
 import { INITIAL_SERVICES, INITIAL_GALLERY } from '../constants';
 
 const DB_KEY = 'sarasota_glass_db';
@@ -8,11 +8,15 @@ interface DBState {
   services: Service[];
   gallery: GalleryItem[];
   users: UserProfile[];
+  appointments: Appointment[];
+  blockedSlots: BlockedSlot[];
 }
 
 const initialState: DBState = {
   services: INITIAL_SERVICES,
   gallery: INITIAL_GALLERY,
+  appointments: [],
+  blockedSlots: [],
   users: [
     {
       id: 'admin-1',
@@ -51,32 +55,34 @@ export const DB = {
     db.services.push(service);
     saveDB(db);
   },
-  updateService: (updated: Service) => {
-    const db = getDB();
-    db.services = db.services.map(s => s.id === updated.id ? updated : s);
-    saveDB(db);
-  },
   deleteService: (id: string) => {
     const db = getDB();
     db.services = db.services.filter(s => s.id !== id);
     saveDB(db);
   },
   getGallery: () => getDB().gallery,
-  addGalleryItem: (item: GalleryItem) => {
+  
+  // Appointment Methods
+  getAppointments: () => getDB().appointments,
+  addAppointment: (app: Appointment) => {
     const db = getDB();
-    db.gallery.push(item);
+    db.appointments.push(app);
     saveDB(db);
   },
-  deleteGalleryItem: (id: string) => {
+  
+  // Blocked Slots Methods
+  getBlockedSlots: () => getDB().blockedSlots,
+  toggleBlockedSlot: (date: string, time: string) => {
     const db = getDB();
-    db.gallery = db.gallery.filter(g => g.id !== id);
+    const exists = db.blockedSlots.findIndex(s => s.date === date && s.time === time);
+    if (exists > -1) {
+      db.blockedSlots.splice(exists, 1);
+    } else {
+      db.blockedSlots.push({ date, time });
+    }
     saveDB(db);
   },
+
   getUsers: () => getDB().users,
-  getUser: (id: string) => getDB().users.find(u => u.id === id),
-  updateUser: (updated: UserProfile) => {
-    const db = getDB();
-    db.users = db.users.map(u => u.id === updated.id ? updated : u);
-    saveDB(db);
-  }
+  getUser: (id: string) => getDB().users.find(u => u.id === id)
 };

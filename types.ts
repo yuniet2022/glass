@@ -22,6 +22,23 @@ export interface GalleryItem {
   category: string;
 }
 
+export interface Appointment {
+  id: string;
+  clientId: string;
+  clientName: string;
+  email: string;
+  phone: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:00
+  projectType: string;
+  notes: string;
+}
+
+export interface BlockedSlot {
+  date: string; // YYYY-MM-DD
+  time: string; // HH:00
+}
+
 export interface UserProfile {
   id: string;
   name: string;
