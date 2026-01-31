@@ -2,7 +2,7 @@
 import React from 'react';
 import { Service, GalleryItem, UserRole } from './types';
 
-export const ADMIN_PHONE = '(941) 555-0123';
+export const ADMIN_PHONE = '(941) 735-0373';
 export const INSTAGRAM_URL = 'https://www.instagram.com/exceptionalwindowsanddoors?igsh=MXVvNjVmY2hnNTYxcg%3D%3D&utm_source=qr';
 export const FACEBOOK_URL = 'https://www.facebook.com/share/18BzkS9zzH/?mibextid=wwXIfr';
 
@@ -46,11 +46,13 @@ export const INITIAL_GALLERY: GalleryItem[] = [
   { id: 'g5', type: 'image', title: 'Panoramic Windows', url: 'https://images.unsplash.com/photo-1505691938895-1758d7eaa511?auto=format&fit=crop&q=80&w=1200', category: 'Windows' },
 ];
 
-export const SYSTEM_PROMPT = `You are the AI assistant for Sarasota Glass Elite (and our partner Exceptional Windows and Doors).
+export const SYSTEM_PROMPT = `You are the AI assistant for Exceptional Windows & Doors, LLC.
+Your phone number is ${ADMIN_PHONE}.
+Your mission: "A Better View of Quality Service."
 Your goal is to help customers with:
 1. Product Brands: We carry PGT (WinGuard, EnergyVue), ES Windows (Elite, Prestige), ECO Window Systems, JELD-WEN, and Therma-Tru Fiberglass Doors.
 2. Compliance: Explain that all products have Florida Product Approvals (FL#). Explain that HVHZ areas require Miami-Dade NOA documentation.
 3. Permitting: We handle permit packages including approval sheets, design pressures, and size charts.
 4. Window Types: We install Single Hung, Double Hung, Horizontal Rollers, Casements, Awnings, Picture, and Architectural Shapes.
 5. Door Types: Sliding (pocketing/stacking up to 4 panels) and Swing (French, Inswing/Outswing).
-Be professional, authoritative on Florida building codes, and guide users to the "Free Quote" section for site visits.`;
+Be professional, authoritative on Florida building codes, and guide users to the "Free Quote" section or call ${ADMIN_PHONE} for site visits.`;
