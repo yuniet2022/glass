@@ -14,29 +14,35 @@ import AboutUs from './components/AboutUs';
 import QuoteForm from './components/QuoteForm';
 import CallButton from './components/CallButton';
 import ProductGuide from './components/ProductGuide';
+import Blog from './components/Blog';
 
 const App: React.FC = () => {
   const [currentRole, setCurrentRole] = useState<UserRole>(UserRole.GUEST);
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
-  const [view, setView] = useState<'home' | 'gallery' | 'portal' | 'admin' | 'about' | 'quote' | 'products'>('home');
+  const [view, setView] = useState<'home' | 'gallery' | 'portal' | 'admin' | 'about' | 'quote' | 'products' | 'blog'>('home');
 
   useEffect(() => {
-    const savedRole = localStorage.getItem('app_role') as UserRole;
-    if (savedRole) {
-      setCurrentRole(savedRole);
-      const user = DB.getUsers().find(u => u.role === savedRole);
-      if (user) setCurrentUser(user);
-    }
+    const init = async () => {
+      const savedRole = localStorage.getItem('app_role') as UserRole;
+      if (savedRole) {
+        setCurrentRole(savedRole);
+        const users = await DB.getUsers();
+        const user = users.find(u => u.role === savedRole);
+        if (user) setCurrentUser(user);
+      }
+    };
+    init();
   }, []);
 
-  const handleRoleChange = (role: UserRole) => {
+  const handleRoleChange = async (role: UserRole) => {
     setCurrentRole(role);
     localStorage.setItem('app_role', role);
     if (role === UserRole.GUEST) {
       setCurrentUser(null);
       setView('home');
     } else {
-      const user = DB.getUsers().find(u => u.role === role);
+      const users = await DB.getUsers();
+      const user = users.find(u => u.role === role);
       setCurrentUser(user || null);
       setView(role === UserRole.ADMIN ? 'admin' : 'portal');
     }
@@ -54,6 +60,8 @@ const App: React.FC = () => {
         );
       case 'gallery':
         return <Gallery />;
+      case 'blog':
+        return <Blog />;
       case 'products':
         return <ProductGuide onQuote={() => setView('quote')} />;
       case 'about':

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { DB } from '../services/db';
-import { Appointment } from '../types';
+import { Appointment, BlockedSlot } from '../types';
 
 const HOURS = Array.from({ length: 10 }, (_, i) => `${i + 8}:00`.padStart(5, '0'));
 
@@ -14,15 +14,29 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
     name: '',
     email: '',
     phone: '',
-    project: 'Shower Enclosure',
+    project: 'Impact Windows',
     notes: '',
     date: new Date().toISOString().split('T')[0],
     time: ''
   });
 
-  const [blockedSlots, setBlockedSlots] = useState(DB.getBlockedSlots());
-  const [appointments, setAppointments] = useState(DB.getAppointments());
+  const [blockedSlots, setBlockedSlots] = useState<BlockedSlot[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const [slots, apps] = await Promise.all([
+        DB.getBlockedSlots(),
+        DB.getAppointments()
+      ]);
+      setBlockedSlots(slots);
+      setAppointments(apps);
+      setIsLoadingSlots(false);
+    };
+    loadData();
+  }, [formData.date]);
 
   const isAvailable = (hour: string) => {
     const isBlocked = blockedSlots.some(s => s.date === formData.date && s.time === hour);
@@ -30,7 +44,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
     return !isBlocked && !isBooked;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.time) return alert("Please select an appointment time.");
     
@@ -48,12 +62,15 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
       notes: formData.notes
     };
 
-    setTimeout(() => {
-      DB.addAppointment(newApp);
+    try {
+      await DB.addAppointment(newApp);
       alert("Appointment successfully booked! We will contact you shortly.");
-      setIsSubmitting(false);
       onSuccess();
-    }, 1500);
+    } catch (err) {
+      alert("Error saving appointment. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -62,32 +79,25 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
         <div className="bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-5">
             {/* Left Info Panel */}
-            <div className="lg:col-span-2 bg-blue-600 p-12 text-white">
-              <h2 className="text-3xl font-serif font-bold mb-6">Start Your <br/>Dream Project</h2>
-              <p className="text-blue-100 mb-12 font-light leading-relaxed">
-                Schedule a site visit and get a precise, no-obligation quote from our master installers.
+            <div className="lg:col-span-2 bg-slate-800 p-12 text-white">
+              <h2 className="text-3xl font-serif font-bold mb-6">Start Your <br/>Expert Project</h2>
+              <p className="text-slate-300 mb-12 font-light leading-relaxed">
+                Book a consultation with our precision team for an accurate on-site evaluation.
               </p>
               
               <div className="space-y-8">
                 <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center">📏</div>
+                  <div className="w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center">📏</div>
                   <div>
-                    <h4 className="font-bold text-sm">Free Measurements</h4>
-                    <p className="text-xs text-blue-200">On-site precision check</p>
+                    <h4 className="font-bold text-sm text-blue-300">Free Measurements</h4>
+                    <p className="text-xs text-slate-400 font-medium uppercase tracking-tight">On-site precision check</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center">📅</div>
+                  <div className="w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center">📅</div>
                   <div>
-                    <h4 className="font-bold text-sm">Instant Booking</h4>
-                    <p className="text-xs text-blue-200">Select your preferred slot</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center">📞</div>
-                  <div>
-                    <h4 className="font-bold text-sm">Expert Consultation</h4>
-                    <p className="text-xs text-blue-200">Direct phone support</p>
+                    <h4 className="font-bold text-sm text-blue-300">Instant Booking</h4>
+                    <p className="text-xs text-slate-400 font-medium uppercase tracking-tight">Real-time DB availability</p>
                   </div>
                 </div>
               </div>
@@ -97,10 +107,10 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
             <div className="lg:col-span-3 p-12">
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Full Name</label>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Full Name</label>
                   <input 
                     required
-                    className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-gray-50 transition-all"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-slate-50 transition-all outline-none"
                     placeholder="Jane Smith"
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
@@ -109,23 +119,23 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Email Address</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</label>
                     <input 
                       required
                       type="email"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-gray-50 transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-slate-50 transition-all outline-none"
                       placeholder="jane@example.com"
                       value={formData.email}
                       onChange={e => setFormData({...formData, email: e.target.value})}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Phone Number</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Phone Number</label>
                     <input 
                       required
                       type="tel"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-gray-50 transition-all"
-                      placeholder="(941) 555-0123"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-slate-50 transition-all outline-none"
+                      placeholder="(941) 735-0373"
                       value={formData.phone}
                       onChange={e => setFormData({...formData, phone: e.target.value})}
                     />
@@ -134,26 +144,26 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Project Type</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Project Type</label>
                     <select 
-                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-gray-50 transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-slate-50 transition-all outline-none"
                       value={formData.project}
                       onChange={e => setFormData({...formData, project: e.target.value})}
                     >
+                      <option>Impact Windows</option>
+                      <option>Entry Doors</option>
                       <option>Shower Enclosure</option>
                       <option>Custom Mirror</option>
                       <option>Glass Railing</option>
-                      <option>Window/Door Repair</option>
-                      <option>Commercial Glass</option>
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Select Date</label>
+                    <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">Select Date</label>
                     <input 
                       required
                       type="date"
                       min={new Date().toISOString().split('T')[0]}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-gray-50 font-bold"
+                      className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-slate-50 font-bold outline-none"
                       value={formData.date}
                       onChange={e => setFormData({...formData, date: e.target.value, time: ''})}
                     />
@@ -161,7 +171,10 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Select Available Time</label>
+                  <label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex justify-between">
+                    <span>Select Available Time</span>
+                    {isLoadingSlots && <span className="animate-spin text-blue-600">⌛</span>}
+                  </label>
                   <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                     {HOURS.map(hour => {
                       const available = isAvailable(hour);
@@ -169,12 +182,12 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
                         <button
                           key={hour}
                           type="button"
-                          disabled={!available}
+                          disabled={!available || isLoadingSlots}
                           onClick={() => setFormData({...formData, time: hour})}
                           className={`py-2 text-xs font-bold rounded-lg transition-all ${
-                            formData.time === hour ? 'bg-blue-600 text-white shadow-lg shadow-blue-200' : 
-                            available ? 'bg-white border border-gray-200 text-gray-700 hover:border-blue-500 hover:bg-blue-50' :
-                            'bg-gray-100 text-gray-300 cursor-not-allowed opacity-50'
+                            formData.time === hour ? 'bg-blue-700 text-white shadow-lg shadow-blue-200' : 
+                            available ? 'bg-white border border-gray-200 text-slate-700 hover:border-blue-700 hover:bg-blue-50' :
+                            'bg-slate-100 text-slate-300 cursor-not-allowed opacity-50'
                           }`}
                         >
                           {hour}
@@ -184,19 +197,9 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Additional Details (Optional)</label>
-                  <textarea 
-                    className="w-full px-4 py-3 rounded-xl border border-gray-100 focus:ring-2 focus:ring-blue-500 bg-gray-50 transition-all h-24 resize-none"
-                    placeholder="Tell us about dimensions, glass type, or hardware finish preferences..."
-                    value={formData.notes}
-                    onChange={e => setFormData({...formData, notes: e.target.value})}
-                  />
-                </div>
-
                 <button 
                   disabled={isSubmitting}
-                  className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all flex items-center justify-center space-x-2 disabled:opacity-70"
+                  className="w-full bg-blue-700 text-white py-4 rounded-xl font-bold shadow-xl shadow-blue-900/10 hover:bg-blue-800 transition-all flex items-center justify-center space-x-2 disabled:opacity-70"
                 >
                   {isSubmitting ? (
                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -211,10 +214,6 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ onSuccess }) => {
             </div>
           </div>
         </div>
-        
-        <p className="text-center mt-8 text-gray-400 text-sm">
-          By booking, you agree to our privacy policy and terms of service.
-        </p>
       </div>
     </div>
   );

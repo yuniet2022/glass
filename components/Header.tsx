@@ -6,7 +6,7 @@ import { INSTAGRAM_URL, FACEBOOK_URL } from '../constants';
 interface HeaderProps {
   currentRole: UserRole;
   onRoleChange: (role: UserRole) => void;
-  setView: (view: 'home' | 'gallery' | 'portal' | 'admin' | 'about' | 'quote' | 'products') => void;
+  setView: (view: 'home' | 'gallery' | 'portal' | 'admin' | 'about' | 'quote' | 'products' | 'blog') => void;
   currentView: string;
 }
 
@@ -24,14 +24,11 @@ const Header: React.FC<HeaderProps> = ({ currentRole, onRoleChange, setView, cur
                 <path d="M50 50 L98 50 A48 48 0 0 1 50 98 Z" fill="#4B6A96" />
                 <path d="M2 50 A48 48 0 0 1 50 2 L50 50 Z" fill="#5D7EA8" />
                 <path d="M50 50 L50 98 A48 48 0 0 1 2 50 Z" fill="#84A1C9" />
-                {/* White Grid lines */}
                 <line x1="50" y1="2" x2="50" y2="98" stroke="white" strokeWidth="3" />
                 <line x1="2" y1="50" x2="98" y2="50" stroke="white" strokeWidth="3" />
-                {/* Door Symbol in bottom right quadrant */}
                 <rect x="58" y="60" width="18" height="28" fill="white" />
                 <rect x="60" y="62" width="14" height="24" fill="#4B6A96" />
                 <path d="M68 62 L82 58 L82 86 L68 90 Z" fill="white" />
-                {/* Window Symbol in top left quadrant */}
                 <rect x="24" y="24" width="16" height="16" fill="white" />
                 <line x1="32" y1="24" x2="32" y2="40" stroke="#5D7EA8" strokeWidth="1" />
                 <line x1="24" y1="32" x2="40" y2="32" stroke="#5D7EA8" strokeWidth="1" />
@@ -43,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ currentRole, onRoleChange, setView, cur
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden lg:flex items-center space-x-6">
             <button 
               onClick={() => setView('home')} 
               className={`${currentView === 'home' ? 'text-blue-700 font-bold' : 'text-gray-600'} hover:text-blue-700 transition-colors font-medium`}
@@ -61,6 +58,12 @@ const Header: React.FC<HeaderProps> = ({ currentRole, onRoleChange, setView, cur
               className={`${currentView === 'gallery' ? 'text-blue-700 font-bold' : 'text-gray-600'} hover:text-blue-700 transition-colors font-medium`}
             >
               Gallery
+            </button>
+            <button 
+              onClick={() => setView('blog')} 
+              className={`${currentView === 'blog' ? 'text-blue-700 font-bold' : 'text-gray-600'} hover:text-blue-700 transition-colors font-medium`}
+            >
+              Blog
             </button>
             <button 
               onClick={() => setView('about')} 

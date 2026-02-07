@@ -1,88 +1,96 @@
 
-import { Service, GalleryItem, UserProfile, UserRole, Appointment, BlockedSlot } from '../types';
-import { INITIAL_SERVICES, INITIAL_GALLERY } from '../constants';
+import { Service, GalleryItem, UserProfile, UserRole, Appointment, BlockedSlot, BlogPost } from '../types';
 
-const DB_KEY = 'sarasota_glass_db';
-
-interface DBState {
-  services: Service[];
-  gallery: GalleryItem[];
-  users: UserProfile[];
-  appointments: Appointment[];
-  blockedSlots: BlockedSlot[];
-}
-
-const initialState: DBState = {
-  services: INITIAL_SERVICES,
-  gallery: INITIAL_GALLERY,
-  appointments: [],
-  blockedSlots: [],
-  users: [
-    {
-      id: 'admin-1',
-      name: 'Administrator',
-      email: 'admin@sarasotaglass.com',
-      role: UserRole.ADMIN,
-      preferences: { notifications: true, darkMode: false },
-      inquiries: []
-    },
-    {
-      id: 'user-1',
-      name: 'John Doe',
-      email: 'john@example.com',
-      role: UserRole.USER,
-      preferences: { notifications: true, darkMode: false },
-      inquiries: [
-        { id: 'inq-1', date: '2024-05-10', message: 'I need a quote for a 60x72 shower door.', status: 'pending' }
-      ]
-    }
-  ]
-};
-
-export const getDB = (): DBState => {
-  const data = localStorage.getItem(DB_KEY);
-  return data ? JSON.parse(data) : initialState;
-};
-
-export const saveDB = (state: DBState) => {
-  localStorage.setItem(DB_KEY, JSON.stringify(state));
-};
+const API_BASE = window.location.hostname === 'localhost' ? "http://localhost:5050/api" : "/api";
 
 export const DB = {
-  getServices: () => getDB().services,
-  addService: (service: Service) => {
-    const db = getDB();
-    db.services.push(service);
-    saveDB(db);
-  },
-  deleteService: (id: string) => {
-    const db = getDB();
-    db.services = db.services.filter(s => s.id !== id);
-    saveDB(db);
-  },
-  getGallery: () => getDB().gallery,
-  
-  // Appointment Methods
-  getAppointments: () => getDB().appointments,
-  addAppointment: (app: Appointment) => {
-    const db = getDB();
-    db.appointments.push(app);
-    saveDB(db);
-  },
-  
-  // Blocked Slots Methods
-  getBlockedSlots: () => getDB().blockedSlots,
-  toggleBlockedSlot: (date: string, time: string) => {
-    const db = getDB();
-    const exists = db.blockedSlots.findIndex(s => s.date === date && s.time === time);
-    if (exists > -1) {
-      db.blockedSlots.splice(exists, 1);
-    } else {
-      db.blockedSlots.push({ date, time });
-    }
-    saveDB(db);
+  // BLOG
+  getBlogPosts: async (): Promise<BlogPost[]> => {
+    const res = await fetch(`${API_BASE}/blog`);
+    return await res.json();
   },
 
-  getUsers: () => getDB().users,
-  getUser: (id: string) => getDB().users.find(u => u.id === id)
+  addBlogPost: async (post: BlogPost): Promise<void> => {
+    await fetch(`${API_BASE}/blog`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(post)
+    });
+  },
+
+  updateBlogPost: async (post: BlogPost): Promise<void> => {
+    await fetch(`${API_BASE}/blog/${post.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(post)
+    });
+  },
+
+  deleteBlogPost: async (id: string): Promise<void> => {
+    await fetch(`${API_BASE}/blog/${id}`, {
+      method: 'DELETE'
+    });
+  },
+
+  // SERVICES
+  getServices: async (): Promise<Service[]> => {
+    const res = await fetch(`${API_BASE}/services`);
+    return await res.json();
+  },
+
+  addService: async (service: Service): Promise<void> => {
+    await fetch(`${API_BASE}/services`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(service)
+    });
+  },
+
+  // GALLERY
+  getGallery: async (): Promise<GalleryItem[]> => {
+    const res = await fetch(`${API_BASE}/gallery`);
+    return await res.json();
+  },
+
+  // APPOINTMENTS
+  getAppointments: async (): Promise<Appointment[]> => {
+    const res = await fetch(`${API_BASE}/appointments`);
+    return await res.json();
+  },
+
+  addAppointment: async (app: Appointment): Promise<void> => {
+    await fetch(`${API_BASE}/appointments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(app)
+    });
+  },
+
+  // BLOCKED SLOTS
+  getBlockedSlots: async (): Promise<BlockedSlot[]> => {
+    const res = await fetch(`${API_BASE}/blocked-slots`);
+    return await res.json();
+  },
+
+  toggleBlockedSlot: async (date: string, time: string): Promise<void> => {
+    await fetch(`${API_BASE}/blocked-slots/toggle`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date, time })
+    });
+  },
+
+  // USERS (Mantenido como estático por ahora o expandible a API)
+  getUsers: async (): Promise<UserProfile[]> => {
+    return [
+      {
+        id: 'admin-1',
+        name: 'Administrator',
+        email: 'admin@exceptional.com',
+        role: UserRole.ADMIN,
+        preferences: { notifications: true, darkMode: false },
+        inquiries: []
+      }
+    ];
+  }
 };

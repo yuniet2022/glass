@@ -5,6 +5,15 @@ export enum UserRole {
   GUEST = 'GUEST'
 }
 
+export interface BlogPost {
+  id: string;
+  title: string;
+  content: string;
+  image_url: string;
+  category: string;
+  created_at: string;
+}
+
 export interface Service {
   id: string;
   title: string;

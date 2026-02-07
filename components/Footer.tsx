@@ -3,7 +3,7 @@ import React from 'react';
 import { INSTAGRAM_URL, FACEBOOK_URL, ADMIN_PHONE } from '../constants';
 
 interface FooterProps {
-  setView: (view: 'home' | 'gallery' | 'portal' | 'admin' | 'about' | 'quote' | 'products') => void;
+  setView: (view: 'home' | 'gallery' | 'portal' | 'admin' | 'about' | 'quote' | 'products' | 'blog') => void;
 }
 
 const Footer: React.FC<FooterProps> = ({ setView }) => {
@@ -51,6 +51,7 @@ const Footer: React.FC<FooterProps> = ({ setView }) => {
               <li><button onClick={() => setView('home')} className="hover:text-blue-300 transition-colors">Home</button></li>
               <li><button onClick={() => setView('about')} className="hover:text-blue-300 transition-colors">About Us</button></li>
               <li><button onClick={() => setView('products')} className="hover:text-blue-300 transition-colors">Product Guide</button></li>
+              <li><button onClick={() => setView('blog')} className="hover:text-blue-300 transition-colors">Blog</button></li>
               <li><button onClick={() => setView('gallery')} className="hover:text-blue-300 transition-colors">Gallery</button></li>
             </ul>
           </div>
